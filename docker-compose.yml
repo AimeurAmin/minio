@@ -3,19 +3,22 @@ version: '3.8'
 services:
   minio:
     image: minio/minio:latest
-    restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=changeAdminPassword123
-      - MINIO_BROWSER_REDIRECT_URL=${MINIO_BROWSER_REDIRECT_URL}
-      - MINIO_SERVER_URL=${MINIO_SERVER_URL}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aimaminadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-YourSecurePassword123}
+      MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL:-https://minio.aimamin.com}
+      MINIO_SERVER_URL: ${MINIO_SERVER_URL:-https://api.minio.aimamin.com}
     volumes:
       - minio_data:/data
     networks:
       - dokploy-network
     deploy:
       replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
       placement:
         constraints:
           - node.role == manager
